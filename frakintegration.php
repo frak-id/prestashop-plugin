@@ -92,14 +92,6 @@ class FrakIntegration extends Module
 
     public function getContent()
     {
-        require_once dirname(__FILE__) . '/classes/FrakIntegrationAdmin.php';
-        $admin = new FrakIntegrationAdmin($this);
-        $output = $admin->processForm();
-        if (Tools::isSubmit('submit' . $this->name)) {
-            Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules') . '&configure=' . $this->name . '&conf=4');
-        }
-        return $output;
+        Tools::redirectAdmin($this->context->link->getAdminLink('AdminFrakIntegration'));
     }
-
-
 }
