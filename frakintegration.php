@@ -3,6 +3,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+require_once __DIR__ . '/autoloader.php';
+
 class FrakIntegration extends Module
 {
     public function __construct()
@@ -32,11 +34,13 @@ class FrakIntegration extends Module
             $this->registerHook('header') &&
             $this->registerHook('displayBeforeBodyClosingTag') &&
             $this->registerHook('displayFooter') &&
-            $this->registerHook('displayProductAdditionalInfo')) {
+            $this->registerHook('displayProductAdditionalInfo') &&
+            $this->registerHook('actionOrderStatusUpdate')) {
             Configuration::updateValue('FRAK_SHOP_NAME', Configuration::get('PS_SHOP_NAME'));
             Configuration::updateValue('FRAK_LOGO_URL', $this->context->link->getMediaLink(_PS_IMG_ . Configuration::get('PS_LOGO')));
             Configuration::updateValue('FRAK_MODAL_LNG', 'default');
             Configuration::updateValue('FRAK_MODAL_I18N', '{}', true);
+            Configuration::updateValue('FRAK_HOOKS_ENABLED', true);
             return true;
         }
         return false;
@@ -53,6 +57,7 @@ class FrakIntegration extends Module
             Configuration::deleteByName('FRAK_LOGO_URL');
             Configuration::deleteByName('FRAK_MODAL_LNG');
             Configuration::deleteByName('FRAK_MODAL_I18N');
+            Configuration::deleteByName('FRAK_HOOKS_ENABLED');
             return true;
         }
         return false;
@@ -60,6 +65,9 @@ class FrakIntegration extends Module
 
     public function hookHeader()
     {
+        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
+            return;
+        }
         $this->context->controller->addJS('https://cdn.jsdelivr.net/npm/@frak-labs/components', null, ['defer' => true]);
 
         $this->context->smarty->assign([
@@ -75,6 +83,9 @@ class FrakIntegration extends Module
 
     public function hookDisplayBeforeBodyClosingTag()
     {
+        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
+            return;
+        }
         if ($this->context->controller->php_self == 'order-confirmation') {
             $this->context->controller->addJS($this->_path . 'views/js/post-checkout.js');
         }
@@ -82,12 +93,57 @@ class FrakIntegration extends Module
 
     public function hookDisplayFooter()
     {
+        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
+            return;
+        }
         return $this->display(__FILE__, 'views/templates/hook/floatingButton.tpl');
     }
 
     public function hookDisplayProductAdditionalInfo()
     {
+        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
+            return;
+        }
         return $this->display(__FILE__, 'views/templates/hook/sharingButton.tpl');
+    }
+
+    public function hookActionOrderStatusUpdate($params)
+    {
+        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
+            return;
+        }
+
+        $order = new Order($params['id_order']);
+        if ($order->getCurrentState() == Configuration::get('PS_OS_PAYMENT')) {
+            $productId = FrakWebhookHelper::getProductId();
+            $url = '%%BACKEND_URL%%' . '/business/product/' . $productId . '/oracleWebhook/event';
+            $body = [
+                'event' => 'order.created',
+                'data' => [
+                    'orderId' => $order->id,
+                    'total' => $order->getOrdersTotalPaid(),
+                    'currency' => $this->context->currency->iso_code,
+                    'customer' => [
+                        'id' => $order->id_customer,
+                        'email' => $this->context->customer->email,
+                    ],
+                ]
+            ];
+            $jsonBody = json_encode($body);
+            $signature = hash_hmac('sha256', $jsonBody, Configuration::get('FRAK_WEBHOOK_SECRET'));
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'x-hmac-sha256: ' . $signature
+            ]);
+
+            curl_exec($ch);
+            curl_close($ch);
+        }
     }
 
     public function getContent()

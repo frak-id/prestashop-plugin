@@ -31,8 +31,12 @@ mkdir -p "$TEMP_DIR/$MODULE_NAME"
 # Copy module files (excluding development/test files)
 echo "📋 Copying module files..."
 
+# Find all PHP files and replace the placeholder
+find . -type f -name "*.php" -exec sed -i '' "s|%%BACKEND_URL%%|https://backend.frak.id|g" {} +
+
 # Core module files
 cp frakintegration.php "$TEMP_DIR/$MODULE_NAME/"
+cp autoloader.php "$TEMP_DIR/$MODULE_NAME/"
 cp config.xml "$TEMP_DIR/$MODULE_NAME/"
 cp logo.gif "$TEMP_DIR/$MODULE_NAME/"
 cp logo.png "$TEMP_DIR/$MODULE_NAME/"
@@ -41,6 +45,7 @@ cp logo.png "$TEMP_DIR/$MODULE_NAME/"
 cp -r classes/ "$TEMP_DIR/$MODULE_NAME/classes/"
 cp -r controllers/ "$TEMP_DIR/$MODULE_NAME/controllers/"
 cp -r views/ "$TEMP_DIR/$MODULE_NAME/views/"
+cp -r vendor/ "$TEMP_DIR/$MODULE_NAME/vendor/"
 
 # Copy override directory if it has content
 if [ "$(ls -A override/ 2>/dev/null)" ]; then
@@ -57,6 +62,9 @@ echo "🗜️  Creating zip bundle: $BUNDLE_NAME"
 cd "$TEMP_DIR"
 zip -r "../$BUNDLE_NAME" "$MODULE_NAME/" -x "*.DS_Store" "*.git*" "*__pycache__*" "*.pyc"
 cd ..
+
+# Revert the changes to the PHP files
+git checkout .
 
 # Clean up temporary directory
 echo "🧹 Cleaning up temporary files"
