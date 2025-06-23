@@ -74,7 +74,8 @@ class AdminFrakIntegrationController extends ModuleAdminController
 
     private function getWebhookStatus($productId)
     {
-        $url = '%%BACKEND_URL%%' . '/business/product/' . $productId . '/oracleWebhook/status';
+        global $config;
+        $url = $config['BACKEND_URL'] . '/business/product/' . $productId . '/oracleWebhook/status';
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
@@ -85,8 +86,9 @@ class AdminFrakIntegrationController extends ModuleAdminController
 
     private function setupWebhook()
     {
+        global $config;
         $productId = FrakWebhookHelper::getProductId();
-        $url = '%%BACKEND_URL%%' . '/business/product/' . $productId . '/oracleWebhook';
+        $url = $config['BACKEND_URL'] . '/business/product/' . $productId . '/oracleWebhook';
         $body = [
             'url' => $this->context->link->getModuleLink('frakintegration', 'webhook'),
             'events' => ['order.created']
@@ -116,8 +118,9 @@ class AdminFrakIntegrationController extends ModuleAdminController
 
     private function deleteWebhook()
     {
+        global $config;
         $productId = FrakWebhookHelper::getProductId();
-        $url = '%%BACKEND_URL%%' . '/business/product/' . $productId . '/oracleWebhook';
+        $url = $config['BACKEND_URL'] . '/business/product/' . $productId . '/oracleWebhook';
         $signature = hash_hmac('sha256', '', Configuration::get('FRAK_WEBHOOK_SECRET'));
 
         $ch = curl_init($url);

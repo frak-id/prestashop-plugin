@@ -3,7 +3,9 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once __DIR__ . '/autoloader.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+$config = require __DIR__ . '/config.php';
 
 class FrakIntegration extends Module
 {
@@ -113,10 +115,11 @@ class FrakIntegration extends Module
             return;
         }
 
+        global $config;
         $order = new Order($params['id_order']);
         if ($order->getCurrentState() == Configuration::get('PS_OS_PAYMENT')) {
             $productId = FrakWebhookHelper::getProductId();
-            $url = '%%BACKEND_URL%%' . '/business/product/' . $productId . '/oracleWebhook/event';
+            $url = $config['BACKEND_URL'] . '/business/product/' . $productId . '/oracleWebhook/event';
             $body = [
                 'event' => 'order.created',
                 'data' => [

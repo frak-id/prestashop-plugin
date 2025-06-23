@@ -13,29 +13,9 @@
         "autoloader-suffix": "Frak"
     },  
     "scripts": {
-        "build": [
-            "php scripts/replace_backend_url.php",
-            "@composer --no-plugins --no-interaction install --no-scripts --no-dev",
-            "@composer --no-plugins --no-interaction archive --format=zip",
-            "php scripts/reput_backend_url.php"
-        ]
+        "build": "./bundle.sh"
     },
     "scripts-descriptions": {
         "build": "Build project artifact."
-    },
-    "archive": {
-        "name": "frak-plugin",
-        "exclude": [
-            "**/*.md", 
-            "composer.phar", 
-            "composer.json", 
-            "composer.lock", 
-            "test/", 
-            "scripts/", 
-            "*.zip", 
-            ".cursor/", 
-            ".vscode/",
-            ".gitignore"
-        ]
     }
 }
