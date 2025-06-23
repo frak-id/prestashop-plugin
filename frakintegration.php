@@ -20,7 +20,7 @@ class FrakIntegration extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Frak Integration');
+        $this->displayName = $this->l('Frak');
         $this->description = $this->l('Integrates Frak services with PrestaShop.');
 
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');

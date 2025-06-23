@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
     <name>frakintegration</name>
-    <displayName><![CDATA[Frak Integration]]></displayName>
+    <displayName><![CDATA[Frak]]></displayName>
     <version><![CDATA[1.0.0]]></version>
     <description><![CDATA[Integrates Frak services with PrestaShop.]]></description>
     <author><![CDATA[Frak]]></author>
