@@ -39,6 +39,7 @@ cp frakintegration.php "$TEMP_DIR/$MODULE_NAME/"
 cp config.xml "$TEMP_DIR/$MODULE_NAME/"
 cp logo.gif "$TEMP_DIR/$MODULE_NAME/"
 cp logo.png "$TEMP_DIR/$MODULE_NAME/"
+cp config.php "$TEMP_DIR/$MODULE_NAME/"
 
 # Copy directories with their structure
 cp -r classes/ "$TEMP_DIR/$MODULE_NAME/classes/"

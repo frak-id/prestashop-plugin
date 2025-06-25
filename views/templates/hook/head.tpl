@@ -21,9 +21,30 @@
   }
 
   window.FrakSetup = {
-    config: { walletUrl: 'https://wallet.frak.id', metadata: { name: '{$shop_name}', lang, logoUrl }, customizations: { css: "{$css_url}", i18n }, domain: window.location.host },
+    config: { walletUrl: 'https://wallet.frak.id', metadata: { name: '{$shop_name}', lang, logoUrl }, customizations: { i18n }, domain: window.location.host },
     modalConfig: { login: { allowSso: true, ssoMetadata: { logoUrl, homepageLink: window.location.host } } },
     modalShareConfig: { link: window.location.href },
     modalWalletConfig: { metadata: { position: 'right' } },
   };
+
+  // If we got an order data in the page, handle that 
+  document.addEventListener('DOMContentLoaded', async () => {
+    const frakOrderData = document.getElementById('frak-order-data');
+    if (frakOrderData) {
+      const interactionToken = await sessionStorage.getItem(
+          "frak-wallet-interaction-token"
+      );
+      const customerId = frakOrderData.dataset.customerId;
+      const orderId = frakOrderData.dataset.orderId;
+      const token = frakOrderData.dataset.token;
+
+      if (customerId && orderId && token && interactionToken) {
+        fetch('https://backend.frak.id/wallet/interactions/listenForPurchase', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'x-wallet-sdk-auth': interactionToken },
+          body: JSON.stringify({ customerId,orderId,token }),
+        });
+      }
+    }
+  });
 </script>

@@ -75,9 +75,7 @@ class FrakIntegration extends Module
             'shop_name' => Configuration::get('FRAK_SHOP_NAME'),
             'logo_url' => Configuration::get('FRAK_LOGO_URL'),
             'modal_lng' => Configuration::get('FRAK_MODAL_LNG'),
-            'modal_i18n' => Configuration::get('FRAK_MODAL_I18N'),
-            'css_url' => $this->_path . 'views/css/customizations.css',
-            'backend_host' => $this->getBackendHost(),
+            'modal_i18n' => Configuration::get('FRAK_MODAL_I18N')
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/head.tpl');
@@ -120,7 +118,9 @@ class FrakIntegration extends Module
     public function hookDisplayOrderConfirmation($params)
     {
         $order = $params['order'];
+
         if (!$order) {
+            // No order found, do nothing
             return;
         }
 
@@ -130,8 +130,6 @@ class FrakIntegration extends Module
             'token' => $order->secure_key,
         ]);
 
-        $this->context->controller->addJS($this->_path . 'views/js/post-checkout.js');
-
         return $this->display(__FILE__, 'views/templates/hook/orderConfirmation.tpl');
     }
 
@@ -139,14 +137,5 @@ class FrakIntegration extends Module
     public function getContent()
     {
         Tools::redirectAdmin($this->context->link->getAdminLink('AdminFrakIntegration'));
-    }
-
-    private function getBackendHost()
-    {
-        $env = getenv('FRAK_ENV');
-        if ($env === 'dev') {
-            return 'https://backend.dev.frak.id';
-        }
-        return 'https://backend.frak.id';
     }
 }
