@@ -10,12 +10,15 @@
         }
     },
     "config": {
-        "autoloader-suffix": "Frak"
+        "autoloader-suffix": "Frak",
+        "preferred-install": "dist",
+        "prepend-autoloader": false
     },  
     "scripts": {
-        "build": "./bundle.sh"
+        "build": "./bundle_1.sh"
     },
     "scripts-descriptions": {
         "build": "Build project artifact."
-    }
+    },
+    "type": "prestashop-module"
 }

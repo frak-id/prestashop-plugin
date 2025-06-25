@@ -1,3 +1,1 @@
-<div id="frak-floating-button">
-    <a href="#" class="btn btn-primary">Frak</a>
-</div>
+<frak-button-wallet use-reward></frak-button-wallet>

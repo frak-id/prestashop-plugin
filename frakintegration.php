@@ -42,7 +42,9 @@ class FrakIntegration extends Module
             Configuration::updateValue('FRAK_LOGO_URL', $this->context->link->getMediaLink(_PS_IMG_ . Configuration::get('PS_LOGO')));
             Configuration::updateValue('FRAK_MODAL_LNG', 'default');
             Configuration::updateValue('FRAK_MODAL_I18N', '{}', true);
-            Configuration::updateValue('FRAK_HOOKS_ENABLED', true);
+            Configuration::updateValue('FRAK_FLOATING_BUTTON_ENABLED', true);
+            Configuration::updateValue('FRAK_SHARING_BUTTON_ENABLED', true);
+            Configuration::updateValue('FRAK_SHARING_BUTTON_TEXT', 'Share with Frak');
             return true;
         }
         return false;
@@ -59,7 +61,9 @@ class FrakIntegration extends Module
             Configuration::deleteByName('FRAK_LOGO_URL');
             Configuration::deleteByName('FRAK_MODAL_LNG');
             Configuration::deleteByName('FRAK_MODAL_I18N');
-            Configuration::deleteByName('FRAK_HOOKS_ENABLED');
+            Configuration::deleteByName('FRAK_FLOATING_BUTTON_ENABLED');
+            Configuration::deleteByName('FRAK_SHARING_BUTTON_ENABLED');
+            Configuration::deleteByName('FRAK_SHARING_BUTTON_TEXT');
             return true;
         }
         return false;
@@ -67,11 +71,6 @@ class FrakIntegration extends Module
 
     public function hookHeader()
     {
-        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
-            return;
-        }
-        $this->context->controller->addJS('https://cdn.jsdelivr.net/npm/@frak-labs/components', null, ['defer' => true]);
-
         $this->context->smarty->assign([
             'shop_name' => Configuration::get('FRAK_SHOP_NAME'),
             'logo_url' => Configuration::get('FRAK_LOGO_URL'),
@@ -85,9 +84,6 @@ class FrakIntegration extends Module
 
     public function hookDisplayBeforeBodyClosingTag()
     {
-        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
-            return;
-        }
         if ($this->context->controller->php_self == 'order-confirmation') {
             $this->context->controller->addJS($this->_path . 'views/js/post-checkout.js');
         }
@@ -95,7 +91,7 @@ class FrakIntegration extends Module
 
     public function hookDisplayFooter()
     {
-        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
+        if (!Configuration::get('FRAK_FLOATING_BUTTON_ENABLED')) {
             return;
         }
         return $this->display(__FILE__, 'views/templates/hook/floatingButton.tpl');
@@ -103,18 +99,17 @@ class FrakIntegration extends Module
 
     public function hookDisplayProductAdditionalInfo()
     {
-        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
+        if (!Configuration::get('FRAK_SHARING_BUTTON_ENABLED')) {
             return;
         }
+        $this->context->smarty->assign([
+            'button_text' => Configuration::get('FRAK_SHARING_BUTTON_TEXT'),
+        ]);
         return $this->display(__FILE__, 'views/templates/hook/sharingButton.tpl');
     }
 
     public function hookActionOrderStatusUpdate($params)
     {
-        if (!Configuration::get('FRAK_HOOKS_ENABLED')) {
-            return;
-        }
-
         global $config;
         $order = new Order($params['id_order']);
         if ($order->getCurrentState() == Configuration::get('PS_OS_PAYMENT')) {

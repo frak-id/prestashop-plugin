@@ -1,21 +1,34 @@
 <div class="panel">
     <h3><i class="icon icon-cogs"></i> {l s='Frak Integration Configuration' mod='frakintegration'}</h3>
     <form id="module_form" class="defaultForm form-horizontal" action="{$form_action}" method="post">
-        {if !$hooks_enabled}
-            <div class="alert alert-warning">
-                {l s='Frak hooks are currently disabled. The module will not work correctly.' mod='frakintegration'}
-            </div>
-        {/if}
         <div class="form-group">
-            <label class="control-label col-lg-3">{l s='Enable Hooks' mod='frakintegration'}</label>
+            <label class="control-label col-lg-3">{l s='Enable Floating Button' mod='frakintegration'}</label>
             <div class="col-lg-9">
                 <span class="switch prestashop-switch fixed-width-lg">
-                    <input type="radio" name="FRAK_HOOKS_ENABLED" id="FRAK_HOOKS_ENABLED_on" value="1" {if $hooks_enabled}checked="checked"{/if}>
-                    <label for="FRAK_HOOKS_ENABLED_on">{l s='Yes' mod='frakintegration'}</label>
-                    <input type="radio" name="FRAK_HOOKS_ENABLED" id="FRAK_HOOKS_ENABLED_off" value="0" {if !$hooks_enabled}checked="checked"{/if}>
-                    <label for="FRAK_HOOKS_ENABLED_off">{l s='No' mod='frakintegration'}</label>
+                    <input type="radio" name="FRAK_FLOATING_BUTTON_ENABLED" id="FRAK_FLOATING_BUTTON_ENABLED_on" value="1" {if $floating_button_enabled}checked="checked"{/if}>
+                    <label for="FRAK_FLOATING_BUTTON_ENABLED_on">{l s='Yes' mod='frakintegration'}</label>
+                    <input type="radio" name="FRAK_FLOATING_BUTTON_ENABLED" id="FRAK_FLOATING_BUTTON_ENABLED_off" value="0" {if !$floating_button_enabled}checked="checked"{/if}>
+                    <label for="FRAK_FLOATING_BUTTON_ENABLED_off">{l s='No' mod='frakintegration'}</label>
                     <a class="slide-button btn"></a>
                 </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Enable Sharing Button' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <span class="switch prestashop-switch fixed-width-lg">
+                    <input type="radio" name="FRAK_SHARING_BUTTON_ENABLED" id="FRAK_SHARING_BUTTON_ENABLED_on" value="1" {if $sharing_button_enabled}checked="checked"{/if}>
+                    <label for="FRAK_SHARING_BUTTON_ENABLED_on">{l s='Yes' mod='frakintegration'}</label>
+                    <input type="radio" name="FRAK_SHARING_BUTTON_ENABLED" id="FRAK_SHARING_BUTTON_ENABLED_off" value="0" {if !$sharing_button_enabled}checked="checked"{/if}>
+                    <label for="FRAK_SHARING_BUTTON_ENABLED_off">{l s='No' mod='frakintegration'}</label>
+                    <a class="slide-button btn"></a>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Sharing Button Text' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <input type="text" name="FRAK_SHARING_BUTTON_TEXT" value="{$sharing_button_text}" />
             </div>
         </div>
         <div class="form-group">

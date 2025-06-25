@@ -1,3 +1,5 @@
-<div id="frak-sharing-button">
-    <a href="#" class="btn btn-primary">Share with Frak</a>
-</div>
+<frak-button-share
+  text="{$button_text}"
+  classname="button"
+  show-wallet
+></frak-button-share>

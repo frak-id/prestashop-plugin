@@ -18,7 +18,9 @@ class AdminFrakIntegrationController extends ModuleAdminController
         $this->context->smarty->assign([
             'module_dir' => $this->module->getPathUri(),
             'form_action' => $this->context->link->getAdminLink('AdminFrakIntegration'),
-            'hooks_enabled' => Configuration::get('FRAK_HOOKS_ENABLED'),
+            'floating_button_enabled' => Configuration::get('FRAK_FLOATING_BUTTON_ENABLED'),
+            'sharing_button_enabled' => Configuration::get('FRAK_SHARING_BUTTON_ENABLED'),
+            'sharing_button_text' => Configuration::get('FRAK_SHARING_BUTTON_TEXT'),
             'shop_name' => Configuration::get('FRAK_SHOP_NAME'),
             'logo_url' => Configuration::get('FRAK_LOGO_URL'),
             'modal_lng' => Configuration::get('FRAK_MODAL_LNG'),
@@ -34,7 +36,9 @@ class AdminFrakIntegrationController extends ModuleAdminController
     public function postProcess()
     {
         if (Tools::isSubmit('submitFrakIntegration')) {
-            $hooksEnabled = (bool)Tools::getValue('FRAK_HOOKS_ENABLED');
+            $floatingButtonEnabled = (bool)Tools::getValue('FRAK_FLOATING_BUTTON_ENABLED');
+            $sharingButtonEnabled = (bool)Tools::getValue('FRAK_SHARING_BUTTON_ENABLED');
+            $sharingButtonText = strval(Tools::getValue('FRAK_SHARING_BUTTON_TEXT'));
             $shopName = strval(Tools::getValue('FRAK_SHOP_NAME'));
             $logoUrl = strval(Tools::getValue('FRAK_LOGO_URL'));
             $modalLng = strval(Tools::getValue('FRAK_MODAL_LNG'));
@@ -48,7 +52,9 @@ class AdminFrakIntegrationController extends ModuleAdminController
             } elseif (!empty($modalI18n) && !json_decode($modalI18n)) {
                 $this->errors[] = $this->l('Invalid i18n JSON');
             } else {
-                Configuration::updateValue('FRAK_HOOKS_ENABLED', $hooksEnabled);
+                Configuration::updateValue('FRAK_FLOATING_BUTTON_ENABLED', $floatingButtonEnabled);
+                Configuration::updateValue('FRAK_SHARING_BUTTON_ENABLED', $sharingButtonEnabled);
+                Configuration::updateValue('FRAK_SHARING_BUTTON_TEXT', $sharingButtonText);
                 Configuration::updateValue('FRAK_SHOP_NAME', $shopName);
                 Configuration::updateValue('FRAK_LOGO_URL', $logoUrl);
                 Configuration::updateValue('FRAK_MODAL_LNG', $modalLng);

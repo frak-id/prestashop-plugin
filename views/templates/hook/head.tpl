@@ -1,3 +1,4 @@
+<script src="https://cdn.jsdelivr.net/npm/@frak-labs/components" defer="defer"></script>
 <script type="text/javascript">
   // Precompute a few stuff
   let logoUrl = '{$logo_url}';

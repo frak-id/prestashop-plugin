@@ -27,6 +27,8 @@ services:
       PS_DOMAIN: localhost:8080
       PS_FOLDER_ADMIN: admin4577
       PS_FOLDER_INSTALL: install4577
+      # demo@prestashop.com
+      # password: prestashop_demo
     networks:
       - prestashop_network
 networks:
