@@ -34,9 +34,9 @@ class FrakIntegration extends Module
     {
         if (parent::install() &&
             $this->registerHook('header') &&
-            $this->registerHook('displayBeforeBodyClosingTag') &&
             $this->registerHook('displayFooter') &&
             $this->registerHook('displayProductAdditionalInfo') &&
+            $this->registerHook('displayOrderConfirmation') &&
             $this->registerHook('actionOrderStatusUpdate')) {
             Configuration::updateValue('FRAK_SHOP_NAME', Configuration::get('PS_SHOP_NAME'));
             Configuration::updateValue('FRAK_LOGO_URL', $this->context->link->getMediaLink(_PS_IMG_ . Configuration::get('PS_LOGO')));
@@ -54,8 +54,8 @@ class FrakIntegration extends Module
     {
         if (parent::uninstall() &&
             $this->unregisterHook('header') &&
-            $this->unregisterHook('displayBeforeBodyClosingTag') &&
             $this->unregisterHook('displayFooter') &&
+            $this->unregisterHook('displayOrderConfirmation') &&
             $this->unregisterHook('displayProductAdditionalInfo')) {
             Configuration::deleteByName('FRAK_SHOP_NAME');
             Configuration::deleteByName('FRAK_LOGO_URL');
@@ -77,17 +77,12 @@ class FrakIntegration extends Module
             'modal_lng' => Configuration::get('FRAK_MODAL_LNG'),
             'modal_i18n' => Configuration::get('FRAK_MODAL_I18N'),
             'css_url' => $this->_path . 'views/css/customizations.css',
+            'backend_host' => $this->getBackendHost(),
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/head.tpl');
     }
 
-    public function hookDisplayBeforeBodyClosingTag()
-    {
-        if ($this->context->controller->php_self == 'order-confirmation') {
-            $this->context->controller->addJS($this->_path . 'views/js/post-checkout.js');
-        }
-    }
 
     public function hookDisplayFooter()
     {
@@ -122,8 +117,36 @@ class FrakIntegration extends Module
         }
     }
 
+    public function hookDisplayOrderConfirmation($params)
+    {
+        $order = $params['order'];
+        if (!$order) {
+            return;
+        }
+
+        $this->context->smarty->assign([
+            'customer_id' => $order->id_customer,
+            'order_id' => $order->id,
+            'token' => $order->secure_key,
+        ]);
+
+        $this->context->controller->addJS($this->_path . 'views/js/post-checkout.js');
+
+        return $this->display(__FILE__, 'views/templates/hook/orderConfirmation.tpl');
+    }
+
+
     public function getContent()
     {
         Tools::redirectAdmin($this->context->link->getAdminLink('AdminFrakIntegration'));
+    }
+
+    private function getBackendHost()
+    {
+        $env = getenv('FRAK_ENV');
+        if ($env === 'dev') {
+            return 'https://backend.dev.frak.id';
+        }
+        return 'https://backend.frak.id';
     }
 }
