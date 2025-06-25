@@ -26,8 +26,8 @@ class AdminFrakIntegrationController extends ModuleAdminController
             'modal_lng' => Configuration::get('FRAK_MODAL_LNG'),
             'modal_i18n' => Configuration::get('FRAK_MODAL_I18n'),
             'webhook_status' => $this->getWebhookStatus($productId),
-            'product_id' => $productId,
             'webhook_secret' => Configuration::get('FRAK_WEBHOOK_SECRET'),
+            'frak_product_url' => 'https://business.frak.id/product/' . $productId,
         ]);
 
         return $this->context->smarty->fetch($this->getTemplatePath() . 'configure.tpl');
@@ -64,14 +64,6 @@ class AdminFrakIntegrationController extends ModuleAdminController
             }
         }
 
-        if (Tools::isSubmit('submitFrakWebhook')) {
-            $this->setupWebhook();
-        }
-
-        if (Tools::isSubmit('submitFrakWebhookDelete')) {
-            $this->deleteWebhook();
-        }
-
         if (Tools::isSubmit('generateFrakWebhookSecret')) {
             Configuration::updateValue('FRAK_WEBHOOK_SECRET', Tools::passwdGen(32));
             $this->confirmations[] = $this->l('New webhook secret generated');
@@ -88,63 +80,5 @@ class AdminFrakIntegrationController extends ModuleAdminController
         curl_close($ch);
         $data = json_decode($response, true);
         return isset($data['setup']) && $data['setup'];
-    }
-
-    private function setupWebhook()
-    {
-        global $config;
-        $productId = FrakWebhookHelper::getProductId();
-        $url = $config['BACKEND_URL'] . '/business/product/' . $productId . '/oracleWebhook';
-        $body = [
-            'url' => $this->context->link->getModuleLink('frakintegration', 'webhook'),
-            'events' => ['order.created']
-        ];
-        $jsonBody = json_encode($body);
-        $signature = hash_hmac('sha256', $jsonBody, Configuration::get('FRAK_WEBHOOK_SECRET'));
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'x-hmac-sha256: ' . $signature
-        ]);
-
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode == 200) {
-            $this->confirmations[] = $this->l('Webhook created successfully');
-        } else {
-            $this->errors[] = $this->l('Error creating webhook: ') . $response;
-        }
-    }
-
-    private function deleteWebhook()
-    {
-        global $config;
-        $productId = FrakWebhookHelper::getProductId();
-        $url = $config['BACKEND_URL'] . '/business/product/' . $productId . '/oracleWebhook';
-        $signature = hash_hmac('sha256', '', Configuration::get('FRAK_WEBHOOK_SECRET'));
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'x-hmac-sha256: ' . $signature
-        ]);
-
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode == 200) {
-            $this->confirmations[] = $this->l('Webhook deleted successfully');
-        } else {
-            $this->errors[] = $this->l('Error deleting webhook: ') . $response;
-        }
     }
 }

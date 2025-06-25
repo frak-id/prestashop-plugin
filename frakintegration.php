@@ -110,37 +110,15 @@ class FrakIntegration extends Module
 
     public function hookActionOrderStatusUpdate($params)
     {
-        global $config;
-        $order = new Order($params['id_order']);
-        if ($order->getCurrentState() == Configuration::get('PS_OS_PAYMENT')) {
-            $productId = FrakWebhookHelper::getProductId();
-            $url = $config['BACKEND_URL'] . '/business/product/' . $productId . '/oracleWebhook/event';
-            $body = [
-                'event' => 'order.created',
-                'data' => [
-                    'orderId' => $order->id,
-                    'total' => $order->getOrdersTotalPaid(),
-                    'currency' => $this->context->currency->iso_code,
-                    'customer' => [
-                        'id' => $order->id_customer,
-                        'email' => $this->context->customer->email,
-                    ],
-                ]
-            ];
-            $jsonBody = json_encode($body);
-            $signature = hash_hmac('sha256', $jsonBody, Configuration::get('FRAK_WEBHOOK_SECRET'));
+        $new_status = $params['newOrderStatus'];
+        $status_map = [
+            (int)Configuration::get('PS_OS_PAYMENT') => 'confirmed',
+            (int)Configuration::get('PS_OS_CANCELED') => 'cancelled',
+            (int)Configuration::get('PS_OS_REFUND') => 'refunded',
+        ];
 
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'x-hmac-sha256: ' . $signature
-            ]);
-
-            curl_exec($ch);
-            curl_close($ch);
+        if (array_key_exists((int)$new_status->id, $status_map)) {
+            FrakWebhookHelper::send($params['id_order'], $status_map[(int)$new_status->id]);
         }
     }
 

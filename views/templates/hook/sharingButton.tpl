@@ -1,5 +1,5 @@
 <frak-button-share
   text="{$button_text}"
-  classname="button"
+  classname="btn btn-secondary"
   show-wallet
 ></frak-button-share>
