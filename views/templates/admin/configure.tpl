@@ -25,6 +25,12 @@
                 </span>
             </div>
         </div>
+        <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Sharing Button Text' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <input type="text" name="FRAK_SHARING_BUTTON_TEXT" value="{$sharing_button_text}" />
+            </div>
+        </div>
         <div class="panel-footer">
             <button type="submit" value="1" name="submitFrakButtons" class="btn btn-default pull-right">
                 <i class="process-icon-save"></i> {l s='Save' mod='frakintegration'}
@@ -36,12 +42,6 @@
 <div class="panel">
     <h3><i class="icon icon-paint-brush"></i> {l s='Modal Personnalisations' mod='frakintegration'}</h3>
     <form id="module_form_modal" class="defaultForm form-horizontal" action="{$form_action}" method="post">
-        <div class="form-group">
-            <label class="control-label col-lg-3">{l s='Sharing Button Text' mod='frakintegration'}</label>
-            <div class="col-lg-9">
-                <input type="text" name="FRAK_SHARING_BUTTON_TEXT" value="{$sharing_button_text}" />
-            </div>
-        </div>
         <div class="form-group">
             <label class="control-label col-lg-3">{l s='Shop Name' mod='frakintegration'}</label>
             <div class="col-lg-9">
@@ -64,10 +64,41 @@
                 </select>
             </div>
         </div>
+        <hr>
+        <h4>{l s='Internationalization' mod='frakintegration'}</h4>
         <div class="form-group">
-            <label class="control-label col-lg-3">{l s='i18n Customizations' mod='frakintegration'}</label>
+            <label class="control-label col-lg-3">{l s='Login (referrer)' mod='frakintegration'}</label>
             <div class="col-lg-9">
-                <textarea name="FRAK_MODAL_I18N" rows="10" cols="50">{$modal_i18n}</textarea>
+                <input type="text" name="FRAK_MODAL_I18N[sdk.wallet.login.text_sharing]" value="{if isset($modal_i18n['sdk.wallet.login.text_sharing'])}{$modal_i18n['sdk.wallet.login.text_sharing']}{/if}" />
+                <p class="help-block">{l s='Text displayed in the login modal when a user is a referrer.' mod='frakintegration'}</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Login (referred)' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <input type="text" name="FRAK_MODAL_I18N[sdk.wallet.login.text_referred]" value="{if isset($modal_i18n['sdk.wallet.login.text_referred'])}{$modal_i18n['sdk.wallet.login.text_referred']}{/if}" />
+                <p class="help-block">{l s='Text displayed in the login modal when a user is referred.' mod='frakintegration'}</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Login Button' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <input type="text" name="FRAK_MODAL_I18N[sdk.wallet.login.primaryAction]" value="{if isset($modal_i18n['sdk.wallet.login.primaryAction'])}{$modal_i18n['sdk.wallet.login.primaryAction']}{/if}" />
+                <p class="help-block">{l s='Text for the primary action button in the login modal.' mod='frakintegration'}</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Sharing Title' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <input type="text" name="FRAK_MODAL_I18N[sharing.title]" value="{if isset($modal_i18n['sharing.title'])}{$modal_i18n['sharing.title']}{/if}" />
+                <p class="help-block">{l s='Title of the sharing modal.' mod='frakintegration'}</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Sharing Text' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <input type="text" name="FRAK_MODAL_I18N[sharing.text]" value="{if isset($modal_i18n['sharing.text'])}{$modal_i18n['sharing.text']}{/if}" />
+                <p class="help-block">{l s='Text displayed alongside the sharing link.' mod='frakintegration'}</p>
             </div>
         </div>
         <div class="panel-footer">
