@@ -31,6 +31,15 @@
                 <input type="text" name="FRAK_SHARING_BUTTON_TEXT" value="{$sharing_button_text}" />
             </div>
         </div>
+        <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Floating Button Position' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <select name="FRAK_FLOATING_BUTTON_POSITION">
+                    <option value="right" {if $floating_button_position == 'right'}selected="selected"{/if}>{l s='Right' mod='frakintegration'}</option>
+                    <option value="left" {if $floating_button_position == 'left'}selected="selected"{/if}>{l s='Left' mod='frakintegration'}</option>
+                </select>
+            </div>
+        </div>
         <div class="panel-footer">
             <button type="submit" value="1" name="submitFrakButtons" class="btn btn-default pull-right">
                 <i class="process-icon-save"></i> {l s='Save' mod='frakintegration'}

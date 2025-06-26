@@ -15,7 +15,7 @@ class FrakWebhookHelper
     {
         global $config;
         $productId = self::getProductId();
-        return $config['BACKEND_URL'] . '/ext/products/' . $productId . '/webhook/oracle/custom';
+        return 'https://backend.frak.id/ext/products/' . $productId . '/webhook/oracle/custom';
     }
 
     private static function toHex($string)

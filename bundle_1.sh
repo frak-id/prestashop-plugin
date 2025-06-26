@@ -31,15 +31,11 @@ mkdir -p "$TEMP_DIR/$MODULE_NAME"
 # Copy module files (excluding development/test files)
 echo "📋 Copying module files..."
 
-# Find all PHP files and replace the placeholder
-find . -type f -name "*.php" -exec sed -i '' "s|%%BACKEND_URL%%|https://backend.frak.id|g" {} +
-
 # Core module files
 cp frakintegration.php "$TEMP_DIR/$MODULE_NAME/"
 cp config.xml "$TEMP_DIR/$MODULE_NAME/"
 cp logo.gif "$TEMP_DIR/$MODULE_NAME/"
 cp logo.png "$TEMP_DIR/$MODULE_NAME/"
-cp config.php "$TEMP_DIR/$MODULE_NAME/"
 
 # Copy directories with their structure
 cp -r classes/ "$TEMP_DIR/$MODULE_NAME/classes/"

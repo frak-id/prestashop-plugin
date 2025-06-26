@@ -25,6 +25,7 @@ class AdminFrakIntegrationController extends ModuleAdminController
             'module_dir' => $this->module->getPathUri(),
             'form_action' => $this->context->link->getAdminLink('AdminFrakIntegration'),
             'floating_button_enabled' => Configuration::get('FRAK_FLOATING_BUTTON_ENABLED'),
+            'floating_button_position' => Configuration::get('FRAK_FLOATING_BUTTON_POSITION'),
             'sharing_button_enabled' => Configuration::get('FRAK_SHARING_BUTTON_ENABLED'),
             'sharing_button_text' => Configuration::get('FRAK_SHARING_BUTTON_TEXT'),
             'shop_name' => Configuration::get('FRAK_SHOP_NAME'),
@@ -43,10 +44,12 @@ class AdminFrakIntegrationController extends ModuleAdminController
     {
         if (Tools::isSubmit('submitFrakButtons')) {
             $floatingButtonEnabled = (bool)Tools::getValue('FRAK_FLOATING_BUTTON_ENABLED');
+            $floatingButtonPosition = strval(Tools::getValue('FRAK_FLOATING_BUTTON_POSITION'));
             $sharingButtonEnabled = (bool)Tools::getValue('FRAK_SHARING_BUTTON_ENABLED');
             $sharingButtonText = strval(Tools::getValue('FRAK_SHARING_BUTTON_TEXT'));
 
             Configuration::updateValue('FRAK_FLOATING_BUTTON_ENABLED', $floatingButtonEnabled);
+            Configuration::updateValue('FRAK_FLOATING_BUTTON_POSITION', $floatingButtonPosition);
             Configuration::updateValue('FRAK_SHARING_BUTTON_ENABLED', $sharingButtonEnabled);
             Configuration::updateValue('FRAK_SHARING_BUTTON_TEXT', $sharingButtonText);
             $this->confirmations[] = $this->l('Buttons settings updated');
@@ -98,7 +101,7 @@ class AdminFrakIntegrationController extends ModuleAdminController
     private function getWebhookStatus($productId)
     {
         global $config;
-        $url = $config['BACKEND_URL'] . '/business/product/' . $productId . '/oracleWebhook/status';
+        $url = 'https://backend.frak.id/business/product/' . $productId . '/oracleWebhook/status';
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);

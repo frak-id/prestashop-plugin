@@ -5,8 +5,6 @@ if (!defined('_PS_VERSION_')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$config = require __DIR__ . '/config.php';
-
 class FrakIntegration extends Module
 {
     public function __construct()
@@ -43,6 +41,7 @@ class FrakIntegration extends Module
             Configuration::updateValue('FRAK_MODAL_LNG', 'default');
             Configuration::updateValue('FRAK_MODAL_I18N', '{}', true);
             Configuration::updateValue('FRAK_FLOATING_BUTTON_ENABLED', true);
+            Configuration::updateValue('FRAK_FLOATING_BUTTON_POSITION', 'right');
             Configuration::updateValue('FRAK_SHARING_BUTTON_ENABLED', true);
             Configuration::updateValue('FRAK_SHARING_BUTTON_TEXT', 'Share with Frak');
             return true;
@@ -62,6 +61,7 @@ class FrakIntegration extends Module
             Configuration::deleteByName('FRAK_MODAL_LNG');
             Configuration::deleteByName('FRAK_MODAL_I18N');
             Configuration::deleteByName('FRAK_FLOATING_BUTTON_ENABLED');
+            Configuration::deleteByName('FRAK_FLOATING_BUTTON_POSITION');
             Configuration::deleteByName('FRAK_SHARING_BUTTON_ENABLED');
             Configuration::deleteByName('FRAK_SHARING_BUTTON_TEXT');
             return true;
@@ -75,7 +75,8 @@ class FrakIntegration extends Module
             'shop_name' => Configuration::get('FRAK_SHOP_NAME'),
             'logo_url' => Configuration::get('FRAK_LOGO_URL'),
             'modal_lng' => Configuration::get('FRAK_MODAL_LNG'),
-            'modal_i18n' => Configuration::get('FRAK_MODAL_I18N')
+            'modal_i18n' => Configuration::get('FRAK_MODAL_I18N'),
+            'floating_button_position' => Configuration::get('FRAK_FLOATING_BUTTON_POSITION')
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/head.tpl');
