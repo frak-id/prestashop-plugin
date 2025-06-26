@@ -34,7 +34,6 @@ echo "📋 Copying module files..."
 # Core module files
 cp frakintegration.php "$TEMP_DIR/$MODULE_NAME/"
 cp config.xml "$TEMP_DIR/$MODULE_NAME/"
-cp logo.gif "$TEMP_DIR/$MODULE_NAME/"
 cp logo.png "$TEMP_DIR/$MODULE_NAME/"
 
 # Copy directories with their structure

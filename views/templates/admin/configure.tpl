@@ -32,6 +32,22 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="control-label col-lg-3">{l s='Sharing Button Style' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <select name="FRAK_SHARING_BUTTON_STYLE" id="frak_sharing_button_style">
+                    <option value="primary" {if isset($sharing_button_style) && $sharing_button_style == 'primary'}selected="selected"{/if}>{l s='Primary' mod='frakintegration'}</option>
+                    <option value="secondary" {if !isset($sharing_button_style) || $sharing_button_style == 'secondary'}selected="selected"{/if}>{l s='Secondary' mod='frakintegration'}</option>
+                    <option value="custom" {if isset($sharing_button_style) && $sharing_button_style == 'custom'}selected="selected"{/if}>{l s='Custom' mod='frakintegration'}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group" id="frak_sharing_button_custom_style_group" {if !isset($sharing_button_style) || $sharing_button_style != 'custom'}style="display: none;"{/if}>
+            <label class="control-label col-lg-3">{l s='Custom CSS Class' mod='frakintegration'}</label>
+            <div class="col-lg-9">
+                <input type="text" name="FRAK_SHARING_BUTTON_CUSTOM_STYLE" value="{if isset($sharing_button_custom_style)}{$sharing_button_custom_style}{/if}" />
+            </div>
+        </div>
+        <div class="form-group">
             <label class="control-label col-lg-3">{l s='Floating Button Position' mod='frakintegration'}</label>
             <div class="col-lg-9">
                 <select name="FRAK_FLOATING_BUTTON_POSITION">
@@ -120,8 +136,6 @@
 
 <div class="panel">
     <h3><i class="icon icon-cogs"></i> {l s='Frak Webhook Management' mod='frakintegration'}</h3>
-    <h4>Domain: {$domain}</h4>
-    <h4>Product ID: {$product_id}</h4>
     <form id="webhook_form" class="defaultForm form-horizontal" action="{$form_action}" method="post">
         <div class="form-group">
             <label class="control-label col-lg-3">{l s='Webhook Secret' mod='frakintegration'}</label>
@@ -157,10 +171,67 @@
         <div class="form-group">
             <label class="control-label col-lg-3">{l s='Manage Webhook' mod='frakintegration'}</label>
             <div class="col-lg-9">
+                <a id="open-webhook-popup" href="#" class="btn btn-default">
+                    <i class="icon-cog"></i> {l s='Create Webhook' mod='frakintegration'}
+                </a>
                 <a href="{$frak_product_url}" target="_blank" class="btn btn-default">
                     <i class="icon-external-link"></i> {l s='Manage on Frak' mod='frakintegration'}
                 </a>
             </div>
         </div>
     </form>
+    <div class="panel-footer">
+        <h4>Info</h4>
+        <p>Domain: {$domain}</p>
+        <p>Product ID: {$product_id}</p>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const styleSelect = document.getElementById('frak_sharing_button_style');
+        const customStyleGroup = document.getElementById('frak_sharing_button_custom_style_group');
+
+        styleSelect.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customStyleGroup.style.display = 'block';
+            } else {
+                customStyleGroup.style.display = 'none';
+            }
+        });
+
+        const productId = '{$product_id}';
+        const webhookSecret = '{$webhook_secret}';
+
+        if (!document.getElementById('open-webhook-popup')) {
+            return;
+        }
+
+        document.getElementById('open-webhook-popup').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const createUrl = new URL("https://business.frak.id");
+            createUrl.pathname = "/embedded/purchase-tracker";
+            createUrl.searchParams.append("pid", productId);
+            createUrl.searchParams.append("s", webhookSecret);
+            createUrl.searchParams.append("p", "custom");
+
+            const openedWindow = window.open(
+                createUrl.href,
+                "frak-business",
+                "menubar=no,status=no,scrollbars=no,fullscreen=no,width=500,height=800"
+            );
+
+            if (openedWindow) {
+                openedWindow.focus();
+
+                const timer = setInterval(() => {
+                    if (openedWindow.closed) {
+                        clearInterval(timer);
+                        setTimeout(() => window.location.reload(), 1000);
+                    }
+                }, 500);
+            }
+        });
+    });
+</script>

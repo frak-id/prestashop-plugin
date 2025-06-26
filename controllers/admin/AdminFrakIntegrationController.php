@@ -29,6 +29,8 @@ class AdminFrakIntegrationController extends ModuleAdminController
             'floating_button_position' => Configuration::get('FRAK_FLOATING_BUTTON_POSITION'),
             'sharing_button_enabled' => Configuration::get('FRAK_SHARING_BUTTON_ENABLED'),
             'sharing_button_text' => Configuration::get('FRAK_SHARING_BUTTON_TEXT'),
+            'sharing_button_style' => Configuration::get('FRAK_SHARING_BUTTON_STYLE'),
+            'sharing_button_custom_style' => Configuration::get('FRAK_SHARING_BUTTON_CUSTOM_STYLE'),
             'shop_name' => Configuration::get('FRAK_SHOP_NAME'),
             'logo_url' => Configuration::get('FRAK_LOGO_URL'),
             'modal_lng' => Configuration::get('FRAK_MODAL_LNG'),
@@ -50,11 +52,15 @@ class AdminFrakIntegrationController extends ModuleAdminController
             $floatingButtonPosition = strval(Tools::getValue('FRAK_FLOATING_BUTTON_POSITION'));
             $sharingButtonEnabled = (bool)Tools::getValue('FRAK_SHARING_BUTTON_ENABLED');
             $sharingButtonText = strval(Tools::getValue('FRAK_SHARING_BUTTON_TEXT'));
+            $sharingButtonStyle = strval(Tools::getValue('FRAK_SHARING_BUTTON_STYLE'));
+            $sharingButtonCustomStyle = strval(Tools::getValue('FRAK_SHARING_BUTTON_CUSTOM_STYLE'));
 
             Configuration::updateValue('FRAK_FLOATING_BUTTON_ENABLED', $floatingButtonEnabled);
             Configuration::updateValue('FRAK_FLOATING_BUTTON_POSITION', $floatingButtonPosition);
             Configuration::updateValue('FRAK_SHARING_BUTTON_ENABLED', $sharingButtonEnabled);
             Configuration::updateValue('FRAK_SHARING_BUTTON_TEXT', $sharingButtonText);
+            Configuration::updateValue('FRAK_SHARING_BUTTON_STYLE', $sharingButtonStyle);
+            Configuration::updateValue('FRAK_SHARING_BUTTON_CUSTOM_STYLE', $sharingButtonCustomStyle);
             $this->confirmations[] = $this->l('Buttons settings updated');
         }
 

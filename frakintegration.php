@@ -64,6 +64,8 @@ class FrakIntegration extends Module
             Configuration::deleteByName('FRAK_FLOATING_BUTTON_POSITION');
             Configuration::deleteByName('FRAK_SHARING_BUTTON_ENABLED');
             Configuration::deleteByName('FRAK_SHARING_BUTTON_TEXT');
+            Configuration::deleteByName('FRAK_SHARING_BUTTON_STYLE');
+            Configuration::deleteByName('FRAK_SHARING_BUTTON_CUSTOM_STYLE');
             return true;
         }
         return false;
@@ -96,8 +98,19 @@ class FrakIntegration extends Module
         if (!Configuration::get('FRAK_SHARING_BUTTON_ENABLED')) {
             return;
         }
+
+        $sharing_button_style = Configuration::get('FRAK_SHARING_BUTTON_STYLE');
+        $sharing_button_classname = 'btn btn-secondary'; // Default value
+
+        if ($sharing_button_style === 'primary') {
+            $sharing_button_classname = 'btn btn-primary';
+        } elseif ($sharing_button_style === 'custom') {
+            $sharing_button_classname = Configuration::get('FRAK_SHARING_BUTTON_CUSTOM_STYLE');
+        }
+
         $this->context->smarty->assign([
             'button_text' => Configuration::get('FRAK_SHARING_BUTTON_TEXT'),
+            'sharing_button_classname' => $sharing_button_classname,
         ]);
         return $this->display(__FILE__, 'views/templates/hook/sharingButton.tpl');
     }
