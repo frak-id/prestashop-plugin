@@ -120,6 +120,8 @@
 
 <div class="panel">
     <h3><i class="icon icon-cogs"></i> {l s='Frak Webhook Management' mod='frakintegration'}</h3>
+    <h4>Domain: {$domain}</h4>
+    <h4>Product ID: {$product_id}</h4>
     <form id="webhook_form" class="defaultForm form-horizontal" action="{$form_action}" method="post">
         <div class="form-group">
             <label class="control-label col-lg-3">{l s='Webhook Secret' mod='frakintegration'}</label>

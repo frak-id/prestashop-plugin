@@ -7,24 +7,15 @@ class FrakWebhookHelper
     public static function getProductId()
     {
         $domain = Tools::getShopDomain(true, true);
-        $hash = Keccak::hash(self::toHex($domain), 256);
+        $domain = str_replace(['http://', 'https://', 'www.'], '', $domain);
+        $hash = Keccak::hash($domain, 256);
         return '0x' . $hash;
     }
 
-    private static function getWebhookUrl()
+    public static function getWebhookUrl()
     {
-        global $config;
         $productId = self::getProductId();
         return 'https://backend.frak.id/ext/products/' . $productId . '/webhook/oracle/custom';
-    }
-
-    private static function toHex($string)
-    {
-        $hex = '';
-        for ($i=0; $i<strlen($string); $i++) {
-            $hex .= dechex(ord($string[$i]));
-        }
-        return $hex;
     }
 
     public static function send($order_id, $status)

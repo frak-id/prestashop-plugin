@@ -21,6 +21,7 @@ class AdminFrakIntegrationController extends ModuleAdminController
         if (json_last_error() !== JSON_ERROR_NONE) {
             $modal_i18n = [];
         }
+        
         $this->context->smarty->assign([
             'module_dir' => $this->module->getPathUri(),
             'form_action' => $this->context->link->getAdminLink('AdminFrakIntegration'),
@@ -35,6 +36,8 @@ class AdminFrakIntegrationController extends ModuleAdminController
             'webhook_status' => $this->getWebhookStatus($productId),
             'webhook_secret' => Configuration::get('FRAK_WEBHOOK_SECRET'),
             'frak_product_url' => 'https://business.frak.id/product/' . $productId,
+            'domain' => Tools::getShopDomain(true, true),
+            'product_id' => $productId,
         ]);
 
         return $this->context->smarty->fetch($this->getTemplatePath() . 'configure.tpl');
@@ -100,13 +103,49 @@ class AdminFrakIntegrationController extends ModuleAdminController
 
     private function getWebhookStatus($productId)
     {
-        global $config;
         $url = 'https://backend.frak.id/business/product/' . $productId . '/oracleWebhook/status';
+        PrestaShopLogger::addLog('FrakIntegration: Checking webhook status for URL: ' . $url, 1);
+
         $ch = curl_init($url);
+
+        if ($ch === false) {
+            PrestaShopLogger::addLog('FrakIntegration: Failed to initialize cURL.', 3);
+            return false;
+        }
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
         $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_errno = curl_errno($ch);
+        $curl_error = curl_error($ch);
+
         curl_close($ch);
+
+        if ($curl_errno > 0) {
+            PrestaShopLogger::addLog('FrakIntegration: cURL error: ' . $curl_error . ' (errno: ' . $curl_errno . ')', 3);
+            return false;
+        }
+
+        if ($http_code !== 200) {
+            PrestaShopLogger::addLog('FrakIntegration: Received HTTP status code: ' . $http_code, 3);
+            PrestaShopLogger::addLog('FrakIntegration: Response: ' . $response, 1);
+            return false;
+        }
+
         $data = json_decode($response, true);
-        return isset($data['setup']) && $data['setup'];
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            PrestaShopLogger::addLog('FrakIntegration: Failed to decode JSON. Error: ' . json_last_error_msg(), 3);
+            PrestaShopLogger::addLog('FrakIntegration: Raw response: ' . $response, 1);
+            return false;
+        }
+
+        $status = isset($data['setup']) && $data['setup'] === true;
+        PrestaShopLogger::addLog('FrakIntegration: Webhook setup status: ' . ($status ? 'true' : 'false'), 1);
+
+        return $status;
     }
 }
