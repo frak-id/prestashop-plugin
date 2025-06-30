@@ -4,6 +4,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/classes/FrakWebhookHelper.php';
 
 class FrakIntegration extends Module
 {
@@ -66,6 +67,8 @@ class FrakIntegration extends Module
             Configuration::deleteByName('FRAK_SHARING_BUTTON_TEXT');
             Configuration::deleteByName('FRAK_SHARING_BUTTON_STYLE');
             Configuration::deleteByName('FRAK_SHARING_BUTTON_CUSTOM_STYLE');
+            Configuration::deleteByName('FRAK_WEBHOOK_SECRET');
+            Configuration::deleteByName('FRAK_WEBHOOK_LOGS');
             return true;
         }
         return false;
@@ -117,15 +120,49 @@ class FrakIntegration extends Module
 
     public function hookActionOrderStatusUpdate($params)
     {
+        $order_id = $params['id_order'];
         $new_status = $params['newOrderStatus'];
+        
+        PrestaShopLogger::addLog('FrakIntegration: Order status update triggered for order ' . $order_id . ' with status ID: ' . $new_status->id . ' (' . $new_status->name . ')', 1);
+        
+        // The different statuses that we send to the webhook
         $status_map = [
+            (int)Configuration::get('PS_OS_WS_PAYMENT') => 'confirmed',
             (int)Configuration::get('PS_OS_PAYMENT') => 'confirmed',
+            (int)Configuration::get('PS_OS_DELIVERED') => 'confirmed',
             (int)Configuration::get('PS_OS_CANCELED') => 'cancelled',
             (int)Configuration::get('PS_OS_REFUND') => 'refunded',
         ];
 
+        // Status code to skip
+        $skip_status_codes = [
+            (int)Configuration::get('PS_OS_SHIPPING'),
+            (int)Configuration::get('PS_OS_PREPARATION'),
+        ];
+
+        // If the status code is in the skip list, do nothing
+        if (in_array((int)$new_status->id, $skip_status_codes)) {
+            PrestaShopLogger::addLog('FrakIntegration: Skipping webhook for order ' . $order_id . ' with status: ' . $new_status->id, 1);
+            return;
+        }
+
+        // Default to pending if the status is not in the map
+        $webhook_status = 'pending';
         if (array_key_exists((int)$new_status->id, $status_map)) {
-            FrakWebhookHelper::send($params['id_order'], $status_map[(int)$new_status->id]);
+            $webhook_status = $status_map[(int)$new_status->id];
+        }
+
+        PrestaShopLogger::addLog('FrakIntegration: Triggering webhook for order ' . $order_id . ' with status: ' . $webhook_status, 1);
+        
+        // Send the webhook
+        $result = FrakWebhookHelper::send($order_id, $webhook_status);
+        
+        if ($result && isset($result['success'])) {
+            if ($result['success']) {
+                PrestaShopLogger::addLog('FrakIntegration: Webhook sent successfully for order ' . $order_id, 1);
+            } else {
+                PrestaShopLogger::addLog('FrakIntegration: Webhook failed for order ' . $order_id . ': ' . ($result['error'] ?? 'Unknown error'), 3);
+            }
         }
     }
 

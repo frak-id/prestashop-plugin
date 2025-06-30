@@ -22,6 +22,10 @@ class AdminFrakIntegrationController extends ModuleAdminController
             $modal_i18n = [];
         }
         
+        // Get webhook debugging information
+        $webhookLogs = FrakWebhookHelper::getWebhookLogs(10);
+        $webhookStats = FrakWebhookHelper::getWebhookStats();
+        
         $this->context->smarty->assign([
             'module_dir' => $this->module->getPathUri(),
             'form_action' => $this->context->link->getAdminLink('AdminFrakIntegration'),
@@ -40,6 +44,9 @@ class AdminFrakIntegrationController extends ModuleAdminController
             'frak_product_url' => 'https://business.frak.id/product/' . $productId,
             'domain' => Tools::getShopDomain(true, true),
             'product_id' => $productId,
+            'webhook_logs' => $webhookLogs,
+            'webhook_stats' => $webhookStats,
+            'webhook_url' => FrakWebhookHelper::getWebhookUrl(),
         ]);
 
         return $this->context->smarty->fetch($this->getTemplatePath() . 'configure.tpl');
@@ -105,6 +112,20 @@ class AdminFrakIntegrationController extends ModuleAdminController
             Configuration::updateValue('FRAK_WEBHOOK_SECRET', Tools::passwdGen(32));
             $this->confirmations[] = $this->l('New webhook secret generated');
         }
+
+        if (Tools::isSubmit('testFrakWebhook')) {
+            $testResult = FrakWebhookHelper::testWebhook();
+            if ($testResult['success']) {
+                $this->confirmations[] = $this->l('Webhook test successful') . ' (' . $testResult['execution_time'] . 'ms)';
+            } else {
+                $this->errors[] = $this->l('Webhook test failed') . ': ' . $testResult['error'];
+            }
+        }
+
+        if (Tools::isSubmit('clearFrakWebhookLogs')) {
+            FrakWebhookHelper::clearWebhookLogs();
+            $this->confirmations[] = $this->l('Webhook logs cleared');
+        }
     }
 
     private function getWebhookStatus($productId)
@@ -150,7 +171,6 @@ class AdminFrakIntegrationController extends ModuleAdminController
         }
 
         $status = isset($data['setup']) && $data['setup'] === true;
-        PrestaShopLogger::addLog('FrakIntegration: Webhook setup status: ' . ($status ? 'true' : 'false'), 1);
 
         return $status;
     }

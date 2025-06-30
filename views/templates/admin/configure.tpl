@@ -184,6 +184,152 @@
         <h4>Info</h4>
         <p>Domain: {$domain}</p>
         <p>Product ID: {$product_id}</p>
+        <p>Webhook URL: <code>{$webhook_url}</code></p>
+    </div>
+</div>
+
+<div class="panel">
+    <h3><i class="icon icon-bug"></i> {l s='Webhook Debug Information' mod='frakintegration'}</h3>
+    
+    {* Webhook Statistics *}
+    <div class="row">
+        <div class="col-lg-12">
+            <h4>{l s='Statistics' mod='frakintegration'}</h4>
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="panel panel-default">
+                        <div class="panel-body text-center">
+                            <h3 class="text-primary">{$webhook_stats.total_attempts}</h3>
+                            <p>{l s='Total Attempts' mod='frakintegration'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="panel panel-default">
+                        <div class="panel-body text-center">
+                            <h3 class="text-success">{$webhook_stats.successful}</h3>
+                            <p>{l s='Successful' mod='frakintegration'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="panel panel-default">
+                        <div class="panel-body text-center">
+                            <h3 class="text-danger">{$webhook_stats.failed}</h3>
+                            <p>{l s='Failed' mod='frakintegration'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="panel panel-default">
+                        <div class="panel-body text-center">
+                            <h3 class="text-info">{$webhook_stats.success_rate}%</h3>
+                            <p>{l s='Success Rate' mod='frakintegration'}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-body text-center">
+                            <h4 class="text-warning">{$webhook_stats.avg_response_time}ms</h4>
+                            <p>{l s='Average Response Time' mod='frakintegration'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-body text-center">
+                            <h4 class="text-muted">{if $webhook_stats.last_attempt}{$webhook_stats.last_attempt}{else}{l s='Never' mod='frakintegration'}{/if}</h4>
+                            <p>{l s='Last Attempt' mod='frakintegration'}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {* Test and Clear Actions *}
+    <div class="row">
+        <div class="col-lg-12">
+            <h4>{l s='Actions' mod='frakintegration'}</h4>
+            <form class="form-inline" action="{$form_action}" method="post">
+                <button type="submit" name="testFrakWebhook" class="btn btn-primary">
+                    <i class="icon-play"></i> {l s='Test Webhook' mod='frakintegration'}
+                </button>
+                <button type="submit" name="clearFrakWebhookLogs" class="btn btn-warning" onclick="return confirm('{l s='Are you sure you want to clear all webhook logs?' mod='frakintegration'}');">
+                    <i class="icon-trash"></i> {l s='Clear Logs' mod='frakintegration'}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {* Recent Webhook Logs *}
+    <div class="row">
+        <div class="col-lg-12">
+            <h4>{l s='Recent Webhook Attempts' mod='frakintegration'}</h4>
+            {if $webhook_logs && count($webhook_logs) > 0}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{l s='Timestamp' mod='frakintegration'}</th>
+                                <th>{l s='Order ID' mod='frakintegration'}</th>
+                                <th>{l s='Status' mod='frakintegration'}</th>
+                                <th>{l s='HTTP Code' mod='frakintegration'}</th>
+                                <th>{l s='Response Time' mod='frakintegration'}</th>
+                                <th>{l s='Result' mod='frakintegration'}</th>
+                                <th>{l s='Error' mod='frakintegration'}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {foreach from=$webhook_logs item=log}
+                                <tr class="{if $log.success}success{else}danger{/if}">
+                                    <td>{$log.timestamp}</td>
+                                    <td>
+                                        {if $log.order_id > 0}
+                                            <a href="{$link->getAdminLink('AdminOrders')}&id_order={$log.order_id}&vieworder" target="_blank">
+                                                #{$log.order_id}
+                                            </a>
+                                        {else}
+                                            {l s='Test' mod='frakintegration'}
+                                        {/if}
+                                    </td>
+                                    <td>{$log.status}</td>
+                                    <td>
+                                        <span class="label {if $log.http_code >= 200 && $log.http_code < 300}label-success{elseif $log.http_code >= 400}label-danger{else}label-warning{/if}">
+                                            {$log.http_code}
+                                        </span>
+                                    </td>
+                                    <td>{$log.execution_time}ms</td>
+                                    <td>
+                                        {if $log.success}
+                                            <span class="label label-success">{l s='Success' mod='frakintegration'}</span>
+                                        {else}
+                                            <span class="label label-danger">{l s='Failed' mod='frakintegration'}</span>
+                                        {/if}
+                                    </td>
+                                    <td>
+                                        {if $log.error}
+                                            <span class="text-danger" title="{$log.error}">{$log.error|truncate:50}</span>
+                                        {elseif $log.response}
+                                            <span class="text-muted" title="{$log.response}">{$log.response|truncate:30}</span>
+                                        {else}
+                                            -
+                                        {/if}
+                                    </td>
+                                </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+            {else}
+                <div class="alert alert-info">
+                    {l s='No webhook attempts recorded yet. Webhook logs will appear here after orders are placed or tests are run.' mod='frakintegration'}
+                </div>
+            {/if}
+        </div>
     </div>
 </div>
 
