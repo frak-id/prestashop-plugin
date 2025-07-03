@@ -121,6 +121,7 @@ class FrakIntegration extends Module
     public function hookActionOrderStatusUpdate($params)
     {
         $order_id = $params['id_order'];
+        $token = $params['cart']->secure_key;
         $new_status = $params['newOrderStatus'];
         
         PrestaShopLogger::addLog('FrakIntegration: Order status update triggered for order ' . $order_id . ' with status ID: ' . $new_status->id . ' (' . $new_status->name . ')', 1);
@@ -155,7 +156,7 @@ class FrakIntegration extends Module
         PrestaShopLogger::addLog('FrakIntegration: Triggering webhook for order ' . $order_id . ' with status: ' . $webhook_status, 1);
         
         // Send the webhook
-        $result = FrakWebhookHelper::send($order_id, $webhook_status);
+        $result = FrakWebhookHelper::send($order_id, $webhook_status, $token);
         
         if ($result && isset($result['success'])) {
             if ($result['success']) {

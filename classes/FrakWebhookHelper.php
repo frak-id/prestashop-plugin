@@ -18,7 +18,7 @@ class FrakWebhookHelper
         return 'https://backend.frak.id/ext/products/' . $productId . '/webhook/oracle/custom';
     }
 
-    public static function send($order_id, $status)
+    public static function send($order_id, $status, $token)
     {
         $startTime = microtime(true);
         $webhookUrl = self::getWebhookUrl();
@@ -71,7 +71,7 @@ class FrakWebhookHelper
                 'id' => $order_id,
                 'customerId' => $customer->id,
                 'status' => $status,
-                'token' => '',
+                'token' => $token . '_' . $order_id,
                 'currency' => $currency->iso_code,
                 'totalPrice' => $order->total_paid_tax_incl,
                 'items' => $items,
