@@ -66,7 +66,7 @@
 
 <div class="panel">
     <h3><i class="icon icon-paint-brush"></i> {l s='Modal Personnalisations' mod='frakintegration'}</h3>
-    <form id="module_form_modal" class="defaultForm form-horizontal" action="{$form_action}" method="post">
+    <form id="module_form_modal" class="defaultForm form-horizontal" action="{$form_action}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label class="control-label col-lg-3">{l s='Shop Name' mod='frakintegration'}</label>
             <div class="col-lg-9">
@@ -74,9 +74,34 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-lg-3">{l s='Logo URL' mod='frakintegration'}</label>
-            <div class="col-lg-9">
-                <input type="text" name="FRAK_LOGO_URL" value="{$logo_url}" />
+            <label class="control-label col-lg-3">{l s='Logo' mod='frakintegration'}</label>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="control-label">{l s='Logo URL' mod='frakintegration'}</label>
+                    <input type="text" name="FRAK_LOGO_URL" id="logo_url_input" value="{$logo_url}" placeholder="{l s='Enter logo URL' mod='frakintegration'}" />
+                    {if $logo_url && strpos($logo_url, 'modules/frakintegration/uploads/') !== false}
+                        <p class="help-block" style="color: #5cb85c; font-size: 11px;">
+                            <i class="icon-check"></i> {l s='Currently using uploaded file' mod='frakintegration'}
+                        </p>
+                    {/if}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">{l s='Or upload a file' mod='frakintegration'}</label>
+                    <input type="file" name="FRAK_LOGO_FILE" id="logo_file_input" accept="image/*" />
+                    <p class="help-block">{l s='Supported formats: JPG, PNG, GIF, SVG' mod='frakintegration'}</p>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="logo-preview">
+                    <label class="control-label">{l s='Preview' mod='frakintegration'}</label>
+                    <div id="logo_preview_container" style="border: 1px solid #ddd; padding: 10px; text-align: center; min-height: 100px; background-color: #f9f9f9;">
+                        {if $logo_url}
+                            <img id="logo_preview" src="{$logo_url}" alt="Logo preview" style="max-width: 100%; max-height: 80px;" />
+                        {else}
+                            <p id="no_logo_text" style="color: #999; margin: 30px 0;">{l s='No logo selected' mod='frakintegration'}</p>
+                        {/if}
+                    </div>
+                </div>
             </div>
         </div>
         <div class="form-group">
@@ -379,5 +404,78 @@
                 }, 500);
             }
         });
+
+        // Logo preview functionality
+        const logoUrlInput = document.getElementById('logo_url_input');
+        const logoFileInput = document.getElementById('logo_file_input');
+        const logoPreview = document.getElementById('logo_preview');
+        const logoPreviewContainer = document.getElementById('logo_preview_container');
+        const noLogoText = document.getElementById('no_logo_text');
+
+        function updateLogoPreview(src) {
+            if (src) {
+                if (logoPreview) {
+                    logoPreview.src = src;
+                    logoPreview.style.display = 'block';
+                } else {
+                    const img = document.createElement('img');
+                    img.id = 'logo_preview';
+                    img.src = src;
+                    img.alt = 'Logo preview';
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '80px';
+                    logoPreviewContainer.appendChild(img);
+                }
+                if (noLogoText) {
+                    noLogoText.style.display = 'none';
+                }
+            } else {
+                if (logoPreview) {
+                    logoPreview.style.display = 'none';
+                }
+                if (noLogoText) {
+                    noLogoText.style.display = 'block';
+                }
+            }
+        }
+
+        if (logoUrlInput) {
+            logoUrlInput.addEventListener('input', function() {
+                updateLogoPreview(this.value);
+                // Clear file input when URL is typed
+                if (this.value && logoFileInput) {
+                    logoFileInput.value = '';
+                }
+                // Reset styling when manually typing
+                this.style.fontStyle = 'normal';
+                this.style.color = '';
+            });
+        }
+
+        if (logoFileInput) {
+            logoFileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        updateLogoPreview(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                    // Update the URL input to show that a file is selected
+                    if (logoUrlInput) {
+                        logoUrlInput.value = '{l s="File will be uploaded: " mod="frakintegration"}' + file.name;
+                        logoUrlInput.style.fontStyle = 'italic';
+                        logoUrlInput.style.color = '#666';
+                    }
+                } else {
+                    // Reset URL input if no file selected
+                    if (logoUrlInput) {
+                        logoUrlInput.value = '';
+                        logoUrlInput.style.fontStyle = 'normal';
+                        logoUrlInput.style.color = '';
+                    }
+                }
+            });
+        }
     });
 </script>

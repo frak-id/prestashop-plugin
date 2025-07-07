@@ -41,6 +41,7 @@ cp -r classes/ "$TEMP_DIR/$MODULE_NAME/classes/"
 cp -r controllers/ "$TEMP_DIR/$MODULE_NAME/controllers/"
 cp -r views/ "$TEMP_DIR/$MODULE_NAME/views/"
 cp -r vendor/ "$TEMP_DIR/$MODULE_NAME/vendor/"
+cp -r uploads/ "$TEMP_DIR/$MODULE_NAME/uploads/"
 
 # Copy override directory if it has content
 if [ "$(ls -A override/ 2>/dev/null)" ]; then

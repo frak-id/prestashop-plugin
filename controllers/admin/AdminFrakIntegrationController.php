@@ -95,9 +95,42 @@ class AdminFrakIntegrationController extends ModuleAdminController
                 $this->errors[] = $this->l('Invalid i18n data');
             }
 
+            // Handle file upload
+            if (isset($_FILES['FRAK_LOGO_FILE']) && $_FILES['FRAK_LOGO_FILE']['error'] == UPLOAD_ERR_OK) {
+                $uploadedFile = $_FILES['FRAK_LOGO_FILE'];
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
+                $maxFileSize = 2 * 1024 * 1024; // 2MB
+                
+                $fileExtension = strtolower(pathinfo($uploadedFile['name'], PATHINFO_EXTENSION));
+                
+                if (!in_array($fileExtension, $allowedExtensions)) {
+                    $this->errors[] = $this->l('Invalid file format. Only JPG, PNG, GIF, SVG files are allowed.');
+                } elseif ($uploadedFile['size'] > $maxFileSize) {
+                    $this->errors[] = $this->l('File size exceeds 2MB limit.');
+                } else {
+                    // Create uploads directory if it doesn't exist
+                    $uploadsDir = _PS_MODULE_DIR_ . 'frakintegration/uploads/';
+                    if (!is_dir($uploadsDir)) {
+                        mkdir($uploadsDir, 0755, true);
+                    }
+                    
+                    // Generate unique filename
+                    $filename = 'logo_' . uniqid() . '.' . $fileExtension;
+                    $targetPath = $uploadsDir . $filename;
+                    
+                    if (move_uploaded_file($uploadedFile['tmp_name'], $targetPath)) {
+                        // Generate the URL for the uploaded file using proper module URL
+                        $logoUrl = $this->context->link->getBaseLink() . 'modules/frakintegration/uploads/' . $filename;
+                        $this->confirmations[] = $this->l('Logo uploaded successfully');
+                    } else {
+                        $this->errors[] = $this->l('Failed to upload logo file');
+                    }
+                }
+            }
+
             if (!$shopName || empty($shopName) || !Validate::isGenericName($shopName)) {
                 $this->errors[] = $this->l('Invalid Shop Name');
-            } elseif (!$logoUrl || empty($logoUrl) || !Validate::isUrl($logoUrl)) {
+            } elseif (!$logoUrl || empty($logoUrl) || (!Validate::isUrl($logoUrl) && !$this->isLocalFile($logoUrl))) {
                 $this->errors[] = $this->l('Invalid Logo URL');
             } elseif (empty($this->errors)) {
                 Configuration::updateValue('FRAK_SHOP_NAME', $shopName);
@@ -105,6 +138,11 @@ class AdminFrakIntegrationController extends ModuleAdminController
                 Configuration::updateValue('FRAK_MODAL_LNG', $modalLng);
                 Configuration::updateValue('FRAK_MODAL_I18N', $modalI18nJson, true);
                 $this->confirmations[] = $this->l('Modal settings updated');
+                
+                // If a file was uploaded, redirect to refresh the form with the new URL
+                if (isset($_FILES['FRAK_LOGO_FILE']) && $_FILES['FRAK_LOGO_FILE']['error'] == UPLOAD_ERR_OK) {
+                    Tools::redirectAdmin($this->context->link->getAdminLink('AdminFrakIntegration') . '&conf=4');
+                }
             }
         }
 
@@ -126,6 +164,23 @@ class AdminFrakIntegrationController extends ModuleAdminController
             FrakWebhookHelper::clearWebhookLogs();
             $this->confirmations[] = $this->l('Webhook logs cleared');
         }
+    }
+
+    private function isLocalFile($url)
+    {
+        // Check if the URL is a local file uploaded to the module directory
+        $moduleUploadPath = _PS_MODULE_DIR_ . 'frakintegration/uploads/';
+        $baseUrl = $this->context->link->getBaseLink();
+        
+        // Check if URL starts with our base URL and contains our module path
+        if (strpos($url, $baseUrl . 'modules/frakintegration/uploads/') === 0) {
+            // Extract filename from URL
+            $filename = basename($url);
+            $absolutePath = $moduleUploadPath . $filename;
+            return file_exists($absolutePath);
+        }
+        
+        return false;
     }
 
     private function getWebhookStatus($productId)
